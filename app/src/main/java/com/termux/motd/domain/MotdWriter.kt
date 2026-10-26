@@ -2,8 +2,6 @@ package com.termux.motd.domain
 
 import android.system.Os
 import java.io.File
-import java.io.FileOutputStream
-import java.nio.charset.StandardCharsets
 
 object MotdWriter {
 
@@ -24,9 +22,7 @@ object MotdWriter {
             }
 
             val scriptFile = File(motdDir, SCRIPT_NAME)
-            FileOutputStream(scriptFile).use { fos ->
-                fos.write(scriptContent.getBytes(StandardCharsets.UTF_8))
-            }
+            scriptFile.writeText(scriptContent, Charsets.UTF_8)
 
             // Dosyaya çalıştırma yetkisi ver (chmod 755 / rwxr-xr-x)
             try {
@@ -50,9 +46,7 @@ object MotdWriter {
                 fi
             """.trimIndent()
 
-            FileOutputStream(hookFile).use { fos ->
-                fos.write(hookContent.getBytes(StandardCharsets.UTF_8))
-            }
+            hookFile.writeText(hookContent, Charsets.UTF_8)
 
             try {
                 Os.chmod(hookFile.absolutePath, 493) // 0755
