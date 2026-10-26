@@ -1,5 +1,6 @@
 package com.termux.motd
 
+import com.termux.motd.domain.BoxStyle
 import com.termux.motd.domain.MotdConfig
 import com.termux.motd.domain.MotdGenerator
 import com.termux.motd.domain.MotdTheme
@@ -11,11 +12,12 @@ class MotdGeneratorTest {
 
     @Test
     fun testGenerateScriptContainsHeaderAndShebang() {
-        val config = MotdConfig(title = "ÖZEL BAŞLIK")
+        val config = MotdConfig(title = "ÖZEL BAŞLIK", subtitle = "ALT BAŞLIK TESTİ")
         val script = MotdGenerator.generateScript(config)
 
         assertTrue(script.startsWith("#!/data/data/com.termux/files/usr/bin/bash"))
         assertTrue(script.contains("ÖZEL BAŞLIK"))
+        assertTrue(script.contains("ALT BAŞLIK TESTİ"))
         assertTrue(script.contains("Modern Termux:MOTD"))
     }
 
@@ -31,16 +33,45 @@ class MotdGeneratorTest {
     }
 
     @Test
-    fun testGenerateScriptBatteryToggle() {
+    fun testGenerateScriptBoxStyles() {
+        val doubleLine = MotdConfig(boxStyle = BoxStyle.DOUBLE_LINE)
+        val doubleScript = MotdGenerator.generateScript(doubleLine)
+        assertTrue(doubleScript.contains("╔"))
+        assertTrue(doubleScript.contains("╗"))
+
+        val rounded = MotdConfig(boxStyle = BoxStyle.ROUNDED)
+        val roundedScript = MotdGenerator.generateScript(rounded)
+        assertTrue(roundedScript.contains("╭"))
+        assertTrue(roundedScript.contains("╮"))
+
+        val minimal = MotdConfig(boxStyle = BoxStyle.MINIMAL)
+        val minimalScript = MotdGenerator.generateScript(minimal)
+        assertTrue(minimalScript.contains("┌"))
+        assertTrue(minimalScript.contains("┐"))
+    }
+
+    @Test
+    fun testGenerateScriptBatteryOnDemandBroadcast() {
         val withBattery = MotdConfig(showBattery = true)
         val scriptWith = MotdGenerator.generateScript(withBattery)
-        assertTrue(scriptWith.contains("/sys/class/power_supply/battery/capacity"))
+        assertTrue(scriptWith.contains("am broadcast -n com.termux.motd/.receiver.BatteryReceiver"))
+        assertTrue(scriptWith.contains("motd_battery.txt"))
         assertTrue(scriptWith.contains("🔋 Pil:"))
 
         val withoutBattery = MotdConfig(showBattery = false)
         val scriptWithout = MotdGenerator.generateScript(withoutBattery)
-        assertFalse(scriptWithout.contains("/sys/class/power_supply/battery/capacity"))
+        assertFalse(scriptWithout.contains("com.termux.motd/.receiver.BatteryReceiver"))
         assertFalse(scriptWithout.contains("🔋 Pil:"))
+    }
+
+    @Test
+    fun testGenerateScriptCustomCommands() {
+        val config = MotdConfig(customCommands = listOf("git status", "htop", "neofetch"))
+        val script = MotdGenerator.generateScript(config)
+
+        assertTrue(script.contains("git status"))
+        assertTrue(script.contains("htop"))
+        assertTrue(script.contains("neofetch"))
     }
 
     @Test

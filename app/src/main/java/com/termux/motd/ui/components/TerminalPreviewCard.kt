@@ -30,6 +30,10 @@ fun TerminalPreviewCard(
         MotdTheme.MINIMAL_ICE -> Color(0xFF7AA2F7)
     }
 
+    val box = config.boxStyle
+    val boxWidth = 34
+    val hLine = box.horizontal.repeat(boxWidth + 4)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -52,7 +56,7 @@ fun TerminalPreviewCard(
             }
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "termux ~ ${config.theme.displayName}",
+                text = "termux ~ ${config.theme.displayName} (${box.displayName})",
                 color = Color(0xFF8A99A8),
                 fontSize = 11.sp,
                 fontFamily = FontFamily.Monospace
@@ -68,20 +72,28 @@ fun TerminalPreviewCard(
         ) {
             // Başlık Kutusu
             Text(
-                text = "╔══════════════════════════════════════╗",
+                text = "${box.topLeft}${hLine}${box.topRight}",
                 color = themeColor,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp
             )
             Text(
-                text = "║  ${config.title.take(34).padEnd(34)}  ║",
+                text = "${box.vertical}  ${config.title.take(boxWidth).padEnd(boxWidth)}  ${box.vertical}",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp
             )
+            if (config.subtitle.isNotBlank()) {
+                Text(
+                    text = "${box.vertical}  ${config.subtitle.take(boxWidth).padEnd(boxWidth)}  ${box.vertical}",
+                    color = Color(0xFFAAAAAA),
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 10.sp
+                )
+            }
             Text(
-                text = "╚══════════════════════════════════════╝",
+                text = "${box.bottomLeft}${hLine}${box.bottomRight}",
                 color = themeColor,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp
@@ -89,7 +101,7 @@ fun TerminalPreviewCard(
 
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "── [ Sistem Durumu ] ──────────────────",
+                text = "${box.horizontal}${box.horizontal} [ Sistem Durumu ] ${box.horizontal.repeat(22)}",
                 color = themeColor,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp
@@ -97,7 +109,7 @@ fun TerminalPreviewCard(
 
             if (config.showBattery) {
                 Text(
-                    text = " 🔋 Pil:          88% (Charging)",
+                    text = " 🔋 Pil:          88% (Şarj Oluyor ⚡)",
                     color = Color(0xFF00FF66),
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp
@@ -129,7 +141,7 @@ fun TerminalPreviewCard(
             }
 
             Text(
-                text = "───────────────────────────────────────",
+                text = box.horizontal.repeat(38),
                 color = themeColor,
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp
@@ -143,7 +155,7 @@ fun TerminalPreviewCard(
                     fontFamily = FontFamily.Monospace,
                     fontSize = 11.sp
                 )
-                config.customCommands.take(3).forEach { cmd ->
+                config.customCommands.forEach { cmd ->
                     Text(
                         text = "   $cmd",
                         color = Color(0xFF00E5FF),

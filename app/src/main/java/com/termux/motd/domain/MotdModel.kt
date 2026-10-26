@@ -37,10 +37,58 @@ enum class MotdTheme(
     )
 }
 
+enum class BoxStyle(
+    val displayName: String,
+    val topLeft: String,
+    val topRight: String,
+    val bottomLeft: String,
+    val bottomRight: String,
+    val horizontal: String,
+    val vertical: String
+) {
+    DOUBLE_LINE(
+        displayName = "Çift Çizgi",
+        topLeft = "╔",
+        topRight = "╗",
+        bottomLeft = "╚",
+        bottomRight = "╝",
+        horizontal = "═",
+        vertical = "║"
+    ),
+    ROUNDED(
+        displayName = "Yuvarlak Köşe",
+        topLeft = "╭",
+        topRight = "╮",
+        bottomLeft = "╰",
+        bottomRight = "╯",
+        horizontal = "─",
+        vertical = "│"
+    ),
+    MINIMAL(
+        displayName = "Minimal İnce",
+        topLeft = "┌",
+        topRight = "┐",
+        bottomLeft = "└",
+        bottomRight = "┘",
+        horizontal = "─",
+        vertical = "│"
+    ),
+    CYBER_BLOCK(
+        displayName = "Siber Blok",
+        topLeft = "▛",
+        topRight = "▜",
+        bottomLeft = "▙",
+        bottomRight = "▟",
+        horizontal = "▀",
+        vertical = "▌"
+    )
+}
+
 data class MotdConfig(
     val title: String = "MODERN TERMUX'A HOŞ GELDİN!",
     val subtitle: String = "Sistem & Oturum Özeti",
     val theme: MotdTheme = MotdTheme.NEON_CYAN,
+    val boxStyle: BoxStyle = BoxStyle.DOUBLE_LINE,
     val showBattery: Boolean = true,
     val showRam: Boolean = true,
     val showStorage: Boolean = true,
