@@ -1,0 +1,124 @@
+name: Release Build
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - 'github-releases/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v7
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build and Sign Release APKs
+        shell: bash {0}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+        run: |
+          exit_on_error() { echo "$1"; exit 1; }
+
+          echo "Setting vars"
+
+          if [ "$GITHUB_EVENT_NAME" == "pull_request" ]; then
+              GITHUB_SHA="${{ github.event.pull_request.head.sha }}"
+          fi
+
+          # Extract versionName from app/build.gradle or app/build.gradle.kts
+          if [ -f "./app/build.gradle.kts" ]; then
+            CURRENT_VERSION_NAME="$(grep -m 1 -E 'versionName\s*=\s*"([^"]+)"' ./app/build.gradle.kts | sed -r 's/.*versionName\s*=\s*"([^"]+)".*/\1/')"
+          elif [ -f "./app/build.gradle" ]; then
+            CURRENT_VERSION_NAME="$(grep -m 1 -E 'versionName\s+"([^"]+)"' ./app/build.gradle | sed -r 's/.*versionName\s+"([^"]+)".*/\1/')"
+          else
+            CURRENT_VERSION_NAME="1.0.0"
+          fi
+
+          RELEASE_VERSION_NAME="v$CURRENT_VERSION_NAME"
+          echo "Building version: $RELEASE_VERSION_NAME"
+
+          APK_DIR_PATH="./app/build/outputs/apk/release"
+          APK_BASENAME_PREFIX="termux-motd_$RELEASE_VERSION_NAME-github-release"
+
+          echo "APK_DIR_PATH=$APK_DIR_PATH" >> $GITHUB_ENV
+          echo "APK_BASENAME_PREFIX=$APK_BASENAME_PREFIX" >> $GITHUB_ENV
+
+          echo "Building Release APKs"
+          chmod +x ./gradlew
+          if ! ./gradlew assembleRelease; then
+            exit_on_error "Build failed for '$RELEASE_VERSION_NAME' release build."
+          fi
+
+          echo "Validating APKs in $APK_DIR_PATH"
+          ls -la "$APK_DIR_PATH"
+
+          # Find the generated release apk
+          BUILT_APK="$(find "$APK_DIR_PATH" -name "*release*.apk" | head -n 1)"
+          if [ -z "$BUILT_APK" ]; then
+            exit_on_error "No release APK found in $APK_DIR_PATH"
+          fi
+
+          FINAL_APK="$APK_DIR_PATH/${APK_BASENAME_PREFIX}_arm64-v8a.apk"
+          if [ "$BUILT_APK" != "$FINAL_APK" ]; then
+            mv "$BUILT_APK" "$FINAL_APK"
+          fi
+
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "Signing Release APK with custom private keystore from GitHub Secrets"
+            echo "$KEYSTORE_BASE64" | base64 -d > /tmp/release.p12
+            APKSIGNER=$(find $ANDROID_SDK_ROOT/build-tools -name apksigner | sort -V | tail -n 1)
+            echo "Found apksigner at: $APKSIGNER"
+
+            ACTUAL_ALIAS="$KEYSTORE_ALIAS"
+            DETECTED_ALIAS=$(keytool -list -keystore /tmp/release.p12 -storepass "$KEYSTORE_PASSWORD" -storetype PKCS12 2>/dev/null | grep -E 'PrivateKeyEntry|trustedCertEntry' | head -n 1 | cut -d, -f1 | cut -d' ' -f1)
+            if [ -n "$DETECTED_ALIAS" ]; then
+              ACTUAL_ALIAS="$DETECTED_ALIAS"
+            fi
+            echo "Using keystore alias: $ACTUAL_ALIAS"
+
+            $APKSIGNER sign --ks /tmp/release.p12 \
+              --ks-pass "pass:$KEYSTORE_PASSWORD" \
+              --ks-key-alias "$ACTUAL_ALIAS" \
+              --key-pass "pass:$KEYSTORE_PASSWORD" \
+              --v1-signing-enabled false \
+              --v2-signing-enabled true \
+              --v3-signing-enabled true \
+              --v4-signing-enabled false \
+              "$FINAL_APK"
+            rm -f /tmp/release.p12
+
+            echo "Verifying Release signature with apksigner"
+            $APKSIGNER verify --verbose "$FINAL_APK"
+          else
+            echo "KEYSTORE_BASE64 secret not found. APK will remain unsigned."
+          fi
+
+          echo "Generating sha256sums file"
+          (cd "$APK_DIR_PATH" && sha256sum "${APK_BASENAME_PREFIX}_arm64-v8a.apk" > "${APK_BASENAME_PREFIX}_sha256sums")
+
+      - name: Attach arm64-v8a APK file
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APK_BASENAME_PREFIX }}_arm64-v8a
+          path: ${{ env.APK_DIR_PATH }}/${{ env.APK_BASENAME_PREFIX }}_arm64-v8a.apk
+
+      - name: Attach sha256sums file
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.APK_BASENAME_PREFIX }}_sha256sums
+          path: ${{ env.APK_DIR_PATH }}/${{ env.APK_BASENAME_PREFIX }}_sha256sums
