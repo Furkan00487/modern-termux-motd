@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -454,6 +455,45 @@ fun MotdAppScreen() {
                     text = "Modern Termux'a Uygula",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
+                )
+            }
+
+            // Varsayılan MOTD'a Sıfırla Butonu
+            OutlinedButton(
+                onClick = {
+                    val result = MotdWriter.resetToDefault()
+                    if (result.isSuccess) {
+                        config = MotdConfig()
+                        isSuccess = true
+                        applyStatusMessage = "🔄 Modern Termux varsayılan MOTD'una başarıyla sıfırlandı!\nTerminali açtığınızda orijinal karşılama ekranı görünecektir."
+                        Toast.makeText(context, "Varsayılan MOTD'a sıfırlandı!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        isSuccess = false
+                        val error = result.exceptionOrNull()?.message ?: "Bilinmeyen hata"
+                        applyStatusMessage = "❌ Sıfırlama hatası: $error"
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = TextMuted
+                ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF1E2836)),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = TextMuted
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Varsayılan MOTD'a Sıfırla",
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = TextMuted
                 )
             }
 
