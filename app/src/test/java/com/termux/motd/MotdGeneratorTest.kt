@@ -84,4 +84,39 @@ class MotdGeneratorTest {
         assertTrue(script.contains("df -h /data"))
         assertTrue(script.contains("uptime -p"))
     }
+
+    @Test
+    fun testMotdConfigDynamicFieldsDefaults() {
+        val config = MotdConfig()
+        assertTrue(config.showSystemStatusHeader)
+        org.junit.Assert.assertEquals("Sistem Durumu", config.systemStatusTitle)
+        org.junit.Assert.assertEquals("🔋 Pil:", config.batteryLabel)
+        org.junit.Assert.assertEquals("💾 Bellek (RAM):", config.ramLabel)
+        org.junit.Assert.assertEquals("📁 Dahili Depolama:", config.storageLabel)
+        org.junit.Assert.assertEquals("⏱️  Çalışma Süresi:", config.uptimeLabel)
+        assertTrue(config.showCommandsHeader)
+        org.junit.Assert.assertEquals("⚡ Hızlı Komutlar:", config.commandsTitle)
+    }
+
+    @Test
+    fun testGenerateScriptCustomSectionTitlesAndLabels() {
+        val customConfig = MotdConfig(
+            systemStatusTitle = "DONANIM BİLGİSİ",
+            batteryLabel = "BATARYA GÜCÜ:",
+            showCommandsHeader = true,
+            commandsTitle = "KISAYOLLAR:"
+        )
+        val script = MotdGenerator.generateScript(customConfig)
+        assertTrue(script.contains("DONANIM BİLGİSİ"))
+        assertTrue(script.contains("BATARYA GÜCÜ:"))
+        assertTrue(script.contains("KISAYOLLAR:"))
+
+        val hiddenConfig = MotdConfig(
+            showSystemStatusHeader = false,
+            showCommandsHeader = false
+        )
+        val hiddenScript = MotdGenerator.generateScript(hiddenConfig)
+        assertFalse(hiddenScript.contains("[ Sistem Durumu ]"))
+        assertFalse(hiddenScript.contains("⚡ Hızlı Komutlar:"))
+    }
 }

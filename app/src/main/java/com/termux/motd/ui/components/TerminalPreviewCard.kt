@@ -99,62 +99,71 @@ fun TerminalPreviewCard(
                 fontSize = 11.sp
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${box.horizontal}${box.horizontal} [ Sistem Durumu ] ${box.horizontal.repeat(22)}",
-                color = themeColor,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp
-            )
+            val hasAnyStat = config.showBattery || config.showRam || config.showStorage || config.showUptime
+            if (hasAnyStat) {
+                Spacer(modifier = Modifier.height(4.dp))
+                if (config.showSystemStatusHeader) {
+                    val statusText = if (config.systemStatusTitle.isNotBlank()) " [ ${config.systemStatusTitle} ] " else " "
+                    val remainingDashes = maxOf(2, 38 - statusText.length)
+                    Text(
+                        text = "${box.horizontal}${box.horizontal}$statusText${box.horizontal.repeat(remainingDashes)}",
+                        color = themeColor,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
 
-            if (config.showBattery) {
-                Text(
-                    text = " 🔋 Pil:          88% (Şarj Oluyor ⚡)",
-                    color = Color(0xFF00FF66),
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
-                )
-            }
-            if (config.showRam) {
-                Text(
-                    text = " 💾 RAM:          4.2 GB boş / 8.0 GB",
-                    color = Color(0xFF00FF66),
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
-                )
-            }
-            if (config.showStorage) {
-                Text(
-                    text = " 📁 Depolama:     45 GB boş / 128 GB",
-                    color = Color(0xFF00FF66),
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
-                )
-            }
-            if (config.showUptime) {
-                Text(
-                    text = " ⏱️  Çalışma:      3 days, 4 hours",
-                    color = Color(0xFF00FF66),
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
-                )
-            }
+                if (config.showBattery) {
+                    Text(
+                        text = " ${config.batteryLabel.padEnd(16)} 88% (Şarj Oluyor ⚡)",
+                        color = Color(0xFF00FF66),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
+                if (config.showRam) {
+                    Text(
+                        text = " ${config.ramLabel.padEnd(16)} 4.2 GB boş / 8.0 GB",
+                        color = Color(0xFF00FF66),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
+                if (config.showStorage) {
+                    Text(
+                        text = " ${config.storageLabel.padEnd(16)} 45 GB boş / 128 GB",
+                        color = Color(0xFF00FF66),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
+                if (config.showUptime) {
+                    Text(
+                        text = " ${config.uptimeLabel.padEnd(16)} 3 days, 4 hours",
+                        color = Color(0xFF00FF66),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
 
-            Text(
-                text = box.horizontal.repeat(38),
-                color = themeColor,
-                fontFamily = FontFamily.Monospace,
-                fontSize = 11.sp
-            )
+                Text(
+                    text = box.horizontal.repeat(38),
+                    color = themeColor,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.sp
+                )
+            }
 
             if (config.customCommands.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "⚡ Hızlı Komutlar:",
-                    color = Color.White,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.sp
-                )
+                if (config.showCommandsHeader && config.commandsTitle.isNotBlank()) {
+                    Text(
+                        text = config.commandsTitle,
+                        color = Color.White,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp
+                    )
+                }
                 config.customCommands.forEach { cmd ->
                     Text(
                         text = "   $cmd",

@@ -71,26 +71,38 @@ object MotdGenerator {
         }
 
         // Çıktı Tablosu
-        val divLine = box.horizontal.repeat(40)
-        sb.append("echo -e \"${colorCode}${box.horizontal}${box.horizontal} [ Sistem Durumu ] ${divLine}${resetCode}\"\n")
-        if (config.showBattery) {
-            sb.append("echo -e \" ${labelCode}🔋 Pil:${resetCode}               ${valCode}\$BAT_INFO${resetCode}\"\n")
+        val hasAnyStat = config.showBattery || config.showRam || config.showStorage || config.showUptime
+        if (hasAnyStat) {
+            if (config.showSystemStatusHeader) {
+                if (config.systemStatusTitle.isNotBlank()) {
+                    val titleLen = config.systemStatusTitle.length
+                    val rightCount = maxOf(4, 52 - titleLen)
+                    sb.append("echo -e \"${colorCode}${box.horizontal}${box.horizontal} [ ${config.systemStatusTitle} ] ${box.horizontal.repeat(rightCount)}${resetCode}\"\n")
+                } else {
+                    sb.append("echo -e \"${colorCode}${box.horizontal.repeat(57)}${resetCode}\"\n")
+                }
+            }
+            if (config.showBattery) {
+                sb.append("echo -e \" ${labelCode}${config.batteryLabel}${resetCode}               ${valCode}\$BAT_INFO${resetCode}\"\n")
+            }
+            if (config.showRam) {
+                sb.append("echo -e \" ${labelCode}${config.ramLabel}${resetCode}      ${valCode}\$RAM_INFO${resetCode}\"\n")
+            }
+            if (config.showStorage) {
+                sb.append("echo -e \" ${labelCode}${config.storageLabel}${resetCode}   ${valCode}\$DISK_INFO${resetCode}\"\n")
+            }
+            if (config.showUptime) {
+                sb.append("echo -e \" ${labelCode}${config.uptimeLabel}${resetCode}   ${valCode}\$UPTIME_INFO${resetCode}\"\n")
+            }
+            val bottomDiv = box.horizontal.repeat(57)
+            sb.append("echo -e \"${colorCode}${bottomDiv}${resetCode}\"\n\n")
         }
-        if (config.showRam) {
-            sb.append("echo -e \" ${labelCode}💾 Bellek (RAM):${resetCode}      ${valCode}\$RAM_INFO${resetCode}\"\n")
-        }
-        if (config.showStorage) {
-            sb.append("echo -e \" ${labelCode}📁 Dahili Depolama:${resetCode}   ${valCode}\$DISK_INFO${resetCode}\"\n")
-        }
-        if (config.showUptime) {
-            sb.append("echo -e \" ${labelCode}⏱️  Çalışma Süresi:${resetCode}   ${valCode}\$UPTIME_INFO${resetCode}\"\n")
-        }
-        val bottomDiv = box.horizontal.repeat(57)
-        sb.append("echo -e \"${colorCode}${bottomDiv}${resetCode}\"\n\n")
 
         // Hızlı Komutlar
         if (config.customCommands.isNotEmpty()) {
-            sb.append("echo -e \"${labelCode}⚡ Hızlı Komutlar:${resetCode}\"\n")
+            if (config.showCommandsHeader && config.commandsTitle.isNotBlank()) {
+                sb.append("echo -e \"${labelCode}${config.commandsTitle}${resetCode}\"\n")
+            }
             for (cmd in config.customCommands) {
                 sb.append("echo -e \"   ${cmdCode}$cmd${resetCode}\"\n")
             }

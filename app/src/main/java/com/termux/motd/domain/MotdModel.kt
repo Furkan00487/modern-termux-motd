@@ -89,9 +89,21 @@ data class MotdConfig(
     val subtitle: String = "Sistem & Oturum Özeti",
     val theme: MotdTheme = MotdTheme.NEON_CYAN,
     val boxStyle: BoxStyle = BoxStyle.DOUBLE_LINE,
+
+    // Sistem Durumu Başlığı & Modül Etiketleri
+    val showSystemStatusHeader: Boolean = true,
+    val systemStatusTitle: String = "Sistem Durumu",
     val showBattery: Boolean = true,
+    val batteryLabel: String = "🔋 Pil:",
     val showRam: Boolean = true,
+    val ramLabel: String = "💾 Bellek (RAM):",
     val showStorage: Boolean = true,
+    val storageLabel: String = "📁 Dahili Depolama:",
     val showUptime: Boolean = true,
+    val uptimeLabel: String = "⏱️  Çalışma Süresi:",
+
+    // Hızlı Komutlar Başlığı
+    val showCommandsHeader: Boolean = true,
+    val commandsTitle: String = "⚡ Hızlı Komutlar:",
     val customCommands: List<String> = listOf("pkg update", "termux-info", "termux-x11 :0 &")
 )
