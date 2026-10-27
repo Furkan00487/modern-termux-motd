@@ -98,6 +98,9 @@ object MotdGenerator {
             if (config.showUptime) {
                 sb.append("echo -e \" ${labelCode}${config.uptimeLabel}${resetCode}   ${valCode}\$UPTIME_INFO${resetCode}\"\n")
             }
+            if (!hasAnyStat) {
+                sb.append("echo -e \"  \\033[1;30m(Hiçbir modül seçilmedi)${resetCode}\"\n")
+            }
             val bottomDiv = box.horizontal.repeat(57)
             sb.append("echo -e \"${colorCode}${bottomDiv}${resetCode}\"\n\n")
         }
@@ -107,8 +110,12 @@ object MotdGenerator {
             if (config.showCommandsHeader && config.commandsTitle.isNotBlank()) {
                 sb.append("echo -e \"${labelCode}${config.commandsTitle}${resetCode}\"\n")
             }
-            for (cmd in config.customCommands) {
-                sb.append("echo -e \"   ${cmdCode}$cmd${resetCode}\"\n")
+            if (config.customCommands.isEmpty()) {
+                sb.append("echo -e \"  \\033[1;30m(Henüz komut eklenmedi)${resetCode}\"\n")
+            } else {
+                for (cmd in config.customCommands) {
+                    sb.append("echo -e \"   ${cmdCode}$cmd${resetCode}\"\n")
+                }
             }
             if (config.showCommandsHeader || config.customCommands.isNotEmpty()) {
                 sb.append("echo \"\"\n")
