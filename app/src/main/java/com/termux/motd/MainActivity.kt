@@ -131,7 +131,7 @@ fun MotdAppScreen() {
             ) {
                 OutlinedTextField(
                     value = config.title,
-                    onValueChange = { config = config.copy(title = it) },
+                    onValueChange = { config = config.copy(title = it, isDefaultPreview = false) },
                     label = { Text("Karşılama Başlığı", color = TextMuted) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -145,7 +145,7 @@ fun MotdAppScreen() {
 
                 OutlinedTextField(
                     value = config.subtitle,
-                    onValueChange = { config = config.copy(subtitle = it) },
+                    onValueChange = { config = config.copy(subtitle = it, isDefaultPreview = false) },
                     label = { Text("Alt Başlık & Özel Not", color = TextMuted) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -175,7 +175,7 @@ fun MotdAppScreen() {
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(8.dp))
-                                .clickable { config = config.copy(boxStyle = style) },
+                                .clickable { config = config.copy(boxStyle = style, isDefaultPreview = false) },
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected) Color(0xFF131D28) else DarkSurface
                             ),
@@ -233,7 +233,7 @@ fun MotdAppScreen() {
                                     if (isSelected) NeonCyan else Color(0xFF1C2530),
                                     RoundedCornerShape(8.dp)
                                 )
-                                .clickable { config = config.copy(theme = theme) }
+                                .clickable { config = config.copy(theme = theme, isDefaultPreview = false) }
                                 .padding(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -295,7 +295,7 @@ fun MotdAppScreen() {
                     )
                     Switch(
                         checked = config.showSystemStatusHeader,
-                        onCheckedChange = { config = config.copy(showSystemStatusHeader = it) },
+                        onCheckedChange = { config = config.copy(showSystemStatusHeader = it, isDefaultPreview = false) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.Black,
                             checkedTrackColor = NeonCyan,
@@ -308,7 +308,7 @@ fun MotdAppScreen() {
                 if (config.showSystemStatusHeader) {
                     OutlinedTextField(
                         value = config.systemStatusTitle,
-                        onValueChange = { config = config.copy(systemStatusTitle = it) },
+                        onValueChange = { config = config.copy(systemStatusTitle = it, isDefaultPreview = false) },
                         label = { Text("Bölüm Başlığı Metni (Örn: Sistem Durumu, Donanım)", color = TextMuted) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
@@ -327,9 +327,9 @@ fun MotdAppScreen() {
                 ModuleItemEditor(
                     title = "🔋 Pil Durumu (Şarj & Yüzde)",
                     checked = config.showBattery,
-                    onCheckedChange = { config = config.copy(showBattery = it) },
+                    onCheckedChange = { config = config.copy(showBattery = it, isDefaultPreview = false) },
                     labelValue = config.batteryLabel,
-                    onLabelChange = { config = config.copy(batteryLabel = it) },
+                    onLabelChange = { config = config.copy(batteryLabel = it, isDefaultPreview = false) },
                     fieldPlaceholder = "🔋 Pil:"
                 )
 
@@ -339,9 +339,9 @@ fun MotdAppScreen() {
                 ModuleItemEditor(
                     title = "💾 Bellek (RAM Boş / Toplam)",
                     checked = config.showRam,
-                    onCheckedChange = { config = config.copy(showRam = it) },
+                    onCheckedChange = { config = config.copy(showRam = it, isDefaultPreview = false) },
                     labelValue = config.ramLabel,
-                    onLabelChange = { config = config.copy(ramLabel = it) },
+                    onLabelChange = { config = config.copy(ramLabel = it, isDefaultPreview = false) },
                     fieldPlaceholder = "💾 Bellek (RAM):"
                 )
 
@@ -351,9 +351,9 @@ fun MotdAppScreen() {
                 ModuleItemEditor(
                     title = "📁 Dahili Depolama (Disk)",
                     checked = config.showStorage,
-                    onCheckedChange = { config = config.copy(showStorage = it) },
+                    onCheckedChange = { config = config.copy(showStorage = it, isDefaultPreview = false) },
                     labelValue = config.storageLabel,
-                    onLabelChange = { config = config.copy(storageLabel = it) },
+                    onLabelChange = { config = config.copy(storageLabel = it, isDefaultPreview = false) },
                     fieldPlaceholder = "📁 Dahili Depolama:"
                 )
 
@@ -363,9 +363,9 @@ fun MotdAppScreen() {
                 ModuleItemEditor(
                     title = "⏱️ Çalışma Süresi (Uptime)",
                     checked = config.showUptime,
-                    onCheckedChange = { config = config.copy(showUptime = it) },
+                    onCheckedChange = { config = config.copy(showUptime = it, isDefaultPreview = false) },
                     labelValue = config.uptimeLabel,
-                    onLabelChange = { config = config.copy(uptimeLabel = it) },
+                    onLabelChange = { config = config.copy(uptimeLabel = it, isDefaultPreview = false) },
                     fieldPlaceholder = "⏱️  Çalışma Süresi:"
                 )
             }
@@ -378,21 +378,21 @@ fun MotdAppScreen() {
                 iconTint = Color(0xFFFFB800),
                 initiallyExpanded = false
             ) {
-                // Komut Başlığı Düzenleme
+                // Ana Hızlı Komutları Göster/Gizle Anahtarı
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Komut Başlığını Göster",
+                        text = "Hızlı Komutları Göster",
                         color = Color.White,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium
                     )
                     Switch(
-                        checked = config.showCommandsHeader,
-                        onCheckedChange = { config = config.copy(showCommandsHeader = it) },
+                        checked = config.showCommands,
+                        onCheckedChange = { config = config.copy(showCommands = it, isDefaultPreview = false) },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.Black,
                             checkedTrackColor = NeonCyan,
@@ -402,103 +402,131 @@ fun MotdAppScreen() {
                     )
                 }
 
-                if (config.showCommandsHeader) {
-                    OutlinedTextField(
-                        value = config.commandsTitle,
-                        onValueChange = { config = config.copy(commandsTitle = it) },
-                        label = { Text("Komut Başlığı Metni", color = TextMuted) },
-                        singleLine = true,
+                if (config.showCommands) {
+                    HorizontalDivider(color = Color(0xFF1E2836), thickness = 0.5.dp)
+
+                    // Komut Başlığı Düzenleme
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = Color(0xFF1E2836),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Komut Başlığını Göster",
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
                         )
-                    )
-                }
-
-                HorizontalDivider(color = Color(0xFF1E2836), thickness = 0.5.dp)
-
-                if (config.customCommands.isEmpty()) {
-                    Text(
-                        text = "Henüz hızlı komut eklenmedi.",
-                        color = TextMuted,
-                        fontSize = 12.sp
-                    )
-                } else {
-                    config.customCommands.forEachIndexed { index, cmd ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(Color(0xFF131D28))
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = cmd,
-                                color = NeonCyan,
-                                fontFamily = FontFamily.Monospace,
-                                fontSize = 13.sp
+                        Switch(
+                            checked = config.showCommandsHeader,
+                            onCheckedChange = { config = config.copy(showCommandsHeader = it, isDefaultPreview = false) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.Black,
+                                checkedTrackColor = NeonCyan,
+                                uncheckedThumbColor = TextMuted,
+                                uncheckedTrackColor = DarkBackground
                             )
-                            IconButton(
-                                onClick = {
-                                    val updated = config.customCommands.toMutableList()
-                                    updated.removeAt(index)
-                                    config = config.copy(customCommands = updated)
-                                },
-                                modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    if (config.showCommandsHeader) {
+                        OutlinedTextField(
+                            value = config.commandsTitle,
+                            onValueChange = { config = config.copy(commandsTitle = it, isDefaultPreview = false) },
+                            label = { Text("Komut Başlığı Metni", color = TextMuted) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = NeonCyan,
+                                unfocusedBorderColor = Color(0xFF1E2836),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
+                            )
+                        )
+                    }
+
+                    HorizontalDivider(color = Color(0xFF1E2836), thickness = 0.5.dp)
+
+                    if (config.customCommands.isEmpty()) {
+                        Text(
+                            text = "Henüz hızlı komut eklenmedi.",
+                            color = TextMuted,
+                            fontSize = 12.sp
+                        )
+                    } else {
+                        config.customCommands.forEachIndexed { index, cmd ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color(0xFF131D28))
+                                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Sil",
-                                    tint = Color(0xFFFF5252),
-                                    modifier = Modifier.size(16.dp)
+                                Text(
+                                    text = cmd,
+                                    color = NeonCyan,
+                                    fontFamily = FontFamily.Monospace,
+                                    fontSize = 13.sp
                                 )
+                                IconButton(
+                                    onClick = {
+                                        val updated = config.customCommands.toMutableList()
+                                        updated.removeAt(index)
+                                        config = config.copy(customCommands = updated, isDefaultPreview = false)
+                                    },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Sil",
+                                        tint = Color(0xFFFF5252),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                // Yeni Komut Ekleme Satırı
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = newCommandInput,
-                        onValueChange = { newCommandInput = it },
-                        placeholder = { Text("Yeni komut (örn: git status)", color = TextMuted, fontSize = 12.sp) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = Color(0xFF1E2836),
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
-                    IconButton(
-                        onClick = {
-                            val trimmed = newCommandInput.trim()
-                            if (trimmed.isNotBlank()) {
-                                config = config.copy(customCommands = config.customCommands + trimmed)
-                                newCommandInput = ""
-                            }
-                        },
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(NeonCyan)
+                    // Yeni Komut Ekleme Satırı
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Ekle",
-                            tint = Color.Black
+                        OutlinedTextField(
+                            value = newCommandInput,
+                            onValueChange = { newCommandInput = it },
+                            placeholder = { Text("Yeni komut (örn: git status)", color = TextMuted, fontSize = 12.sp) },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = NeonCyan,
+                                unfocusedBorderColor = Color(0xFF1E2836),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
+                            )
                         )
+                        IconButton(
+                            onClick = {
+                                val trimmed = newCommandInput.trim()
+                                if (trimmed.isNotBlank()) {
+                                    config = config.copy(customCommands = config.customCommands + trimmed, isDefaultPreview = false)
+                                    newCommandInput = ""
+                                }
+                            },
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(NeonCyan)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Ekle",
+                                tint = Color.Black
+                            )
+                        }
                     }
                 }
             }
@@ -544,7 +572,7 @@ fun MotdAppScreen() {
                 onClick = {
                     val result = MotdWriter.resetToDefault()
                     if (result.isSuccess) {
-                        config = MotdConfig()
+                        config = MotdConfig(isDefaultPreview = true)
                         isSuccess = true
                         applyStatusMessage = "🔄 Modern Termux varsayılan MOTD'una başarıyla sıfırlandı!\nTerminali açtığınızda orijinal karşılama ekranı görünecektir."
                         Toast.makeText(context, "Varsayılan MOTD'a sıfırlandı!", Toast.LENGTH_SHORT).show()

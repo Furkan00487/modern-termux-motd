@@ -119,4 +119,72 @@ class MotdGeneratorTest {
         assertFalse(hiddenScript.contains("[ Sistem Durumu ]"))
         assertFalse(hiddenScript.contains("⚡ Hızlı Komutlar:"))
     }
+
+    @Test
+    fun testGenerateScriptShowCommandsFalse() {
+        val config = MotdConfig(
+            showCommands = false,
+            customCommands = listOf("git status", "ls -la")
+        )
+        val script = MotdGenerator.generateScript(config)
+        assertFalse(script.contains("Hızlı Komutlar"))
+        assertFalse(script.contains("git status"))
+        assertFalse(script.contains("ls -la"))
+    }
+
+    @Test
+    fun testGenerateScriptShowCommandsTrueEmptyCommands() {
+        val config = MotdConfig(
+            showCommands = true,
+            customCommands = emptyList()
+        )
+        val script = MotdGenerator.generateScript(config)
+        assertTrue(script.contains("⚡ Hızlı Komutlar:"))
+        assertTrue(script.contains("(Henüz komut eklenmedi)"))
+    }
+
+    @Test
+    fun testGenerateScriptBlankTitleOmitted() {
+        val config = MotdConfig(
+            title = "",
+            subtitle = ""
+        )
+        val script = MotdGenerator.generateScript(config)
+        // Başlık kutusu çizilmemeli
+        assertFalse(script.contains("╭"))
+        assertFalse(script.contains("╔"))
+        assertFalse(script.contains("┌"))
+    }
+
+    @Test
+    fun testGenerateScriptSystemStatusHeaderEvenWhenAllStatsDisabled() {
+        val config = MotdConfig(
+            showSystemStatusHeader = true,
+            showBattery = false,
+            showRam = false,
+            showStorage = false,
+            showUptime = false
+        )
+        val script = MotdGenerator.generateScript(config)
+        assertTrue(script.contains("[ Sistem Durumu ]"))
+        assertTrue(script.contains("(Hiçbir modül seçilmedi)"))
+    }
+
+    @Test
+    fun testGeneratePromptScriptThemes() {
+        val cyanConfig = MotdConfig(theme = MotdTheme.NEON_CYAN)
+        val cyanPrompt = MotdGenerator.generatePromptScript(cyanConfig)
+        assertTrue(cyanPrompt.startsWith("#!/data/data/com.termux/files/usr/bin/bash"))
+        assertTrue(cyanPrompt.contains("export PS1="))
+        assertTrue(cyanPrompt.contains("\\033[1;36m"))
+        assertTrue(cyanPrompt.contains("\\$"))
+
+        val matrixConfig = MotdConfig(theme = MotdTheme.RETRO_MATRIX)
+        val matrixPrompt = MotdGenerator.generatePromptScript(matrixConfig)
+        assertTrue(matrixPrompt.contains("\\033[1;32m"))
+
+        val synthwaveConfig = MotdConfig(theme = MotdTheme.SYNTHWAVE)
+        val synthwavePrompt = MotdGenerator.generatePromptScript(synthwaveConfig)
+        assertTrue(synthwavePrompt.contains("\\033[1;35m"))
+    }
 }

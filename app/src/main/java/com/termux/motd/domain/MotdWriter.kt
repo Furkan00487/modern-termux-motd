@@ -14,6 +14,7 @@ object MotdWriter {
     const val SCRIPT_NAME = "dyn-motd.sh"
     const val HOOK_NAME = "00-dyn-motd.sh"
     const val USER_MOTD_NAME = "motd.sh"
+    const val PROMPT_SCRIPT_NAME = "01-termux-prompt.sh"
 
     // Modern Termux kaynak kodundaki (TermuxInstaller.java) orijinal varsayılan MOTD içeriği
     const val DEFAULT_MODERN_TERMUX_MOTD =
@@ -75,6 +76,22 @@ object MotdWriter {
             } catch (_: Exception) {
             }
 
+            // 3. $PREFIX/etc/profile.d/01-termux-prompt.sh dinamik PS1 komut istemi dosyasını yaz
+            try {
+                val profileDir = File(PROFILE_DIR_PATH)
+                if (!profileDir.exists()) {
+                    profileDir.mkdirs()
+                }
+                val promptFile = File(profileDir, PROMPT_SCRIPT_NAME)
+                promptFile.writeText(MotdGenerator.generatePromptScript(config), Charsets.UTF_8)
+                try {
+                    Os.chmod(promptFile.absolutePath, 493) // 0755
+                } catch (_: Exception) {
+                    promptFile.setExecutable(true, false)
+                }
+            } catch (_: Exception) {
+            }
+
             Result.success(scriptFile.absolutePath)
         } catch (e: Exception) {
             Result.failure(e)
@@ -83,11 +100,12 @@ object MotdWriter {
 
     fun resetToDefault(): Result<Unit> {
         return try {
-            // 1. Dinamik MOTD kancalarını ve scriptlerini temizle
+            // 1. Dinamik MOTD kancalarını, dinamik prompt'u ve scriptlerini temizle
             try {
                 File(TERMUX_CONFIG_DIR, USER_MOTD_NAME).delete()
                 File(MOTD_DIR_PATH, SCRIPT_NAME).delete()
                 File(PROFILE_DIR_PATH, HOOK_NAME).delete()
+                File(PROFILE_DIR_PATH, PROMPT_SCRIPT_NAME).delete()
                 File(TERMUX_HOME, ".hushlogin").delete()
             } catch (_: Exception) {
             }

@@ -102,8 +102,12 @@ data class MotdConfig(
     val showUptime: Boolean = true,
     val uptimeLabel: String = "⏱️  Çalışma Süresi:",
 
-    // Hızlı Komutlar Başlığı
+    // Hızlı Komutlar
+    val showCommands: Boolean = true,
     val showCommandsHeader: Boolean = true,
     val commandsTitle: String = "⚡ Hızlı Komutlar:",
-    val customCommands: List<String> = listOf("pkg update", "termux-info", "termux-x11 :0 &")
+    val customCommands: List<String> = listOf("pkg update", "termux-info", "termux-x11 :0 &"),
+
+    // Önizleme Özel Durumu (Sıfırlama anında orijinal Termux karşılama ekranını göstermek için)
+    val isDefaultPreview: Boolean = false
 )

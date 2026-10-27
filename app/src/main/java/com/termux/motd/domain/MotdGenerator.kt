@@ -17,13 +17,17 @@ object MotdGenerator {
         sb.append("# Modern Termux:MOTD - Otomatik Üretilen Dinamik Başlatıcı\n")
         sb.append("# Sıfır arka plan tüketimi: Yalnızca oturum açılışında anlık çalışır.\n\n")
 
-        // Başlık Kutusu (Seçilen BoxStyle'a göre)
-        sb.append("echo -e \"${colorCode}${box.topLeft}${hLine}${box.topRight}${resetCode}\"\n")
-        sb.append("echo -e \"${colorCode}${box.vertical}${resetCode}  ${config.title.padEnd(50)}  ${colorCode}${box.vertical}${resetCode}\"\n")
-        if (config.subtitle.isNotBlank()) {
-            sb.append("echo -e \"${colorCode}${box.vertical}${resetCode}  ${config.subtitle.padEnd(50)}  ${colorCode}${box.vertical}${resetCode}\"\n")
+        // Başlık Kutusu (Yalnızca başlık veya alt başlıktan biri doluysa çizilir)
+        if (config.title.isNotBlank() || config.subtitle.isNotBlank()) {
+            sb.append("echo -e \"${colorCode}${box.topLeft}${hLine}${box.topRight}${resetCode}\"\n")
+            if (config.title.isNotBlank()) {
+                sb.append("echo -e \"${colorCode}${box.vertical}${resetCode}  ${config.title.padEnd(50)}  ${colorCode}${box.vertical}${resetCode}\"\n")
+            }
+            if (config.subtitle.isNotBlank()) {
+                sb.append("echo -e \"${colorCode}${box.vertical}${resetCode}  ${config.subtitle.padEnd(50)}  ${colorCode}${box.vertical}${resetCode}\"\n")
+            }
+            sb.append("echo -e \"${colorCode}${box.bottomLeft}${hLine}${box.bottomRight}${resetCode}\"\n\n")
         }
-        sb.append("echo -e \"${colorCode}${box.bottomLeft}${hLine}${box.bottomRight}${resetCode}\"\n\n")
 
         // Dinamik Değişkenler
         if (config.showBattery) {
@@ -72,7 +76,7 @@ object MotdGenerator {
 
         // Çıktı Tablosu
         val hasAnyStat = config.showBattery || config.showRam || config.showStorage || config.showUptime
-        if (hasAnyStat) {
+        if (hasAnyStat || config.showSystemStatusHeader) {
             if (config.showSystemStatusHeader) {
                 if (config.systemStatusTitle.isNotBlank()) {
                     val titleLen = config.systemStatusTitle.length
@@ -99,16 +103,28 @@ object MotdGenerator {
         }
 
         // Hızlı Komutlar
-        if (config.customCommands.isNotEmpty()) {
+        if (config.showCommands) {
             if (config.showCommandsHeader && config.commandsTitle.isNotBlank()) {
                 sb.append("echo -e \"${labelCode}${config.commandsTitle}${resetCode}\"\n")
             }
             for (cmd in config.customCommands) {
                 sb.append("echo -e \"   ${cmdCode}$cmd${resetCode}\"\n")
             }
-            sb.append("echo \"\"\n")
+            if (config.showCommandsHeader || config.customCommands.isNotEmpty()) {
+                sb.append("echo \"\"\n")
+            }
         }
 
         return sb.toString()
+    }
+
+    /**
+     * Modern Termux terminal oturumu için seçilen temanın renginde dinamik prompt (PS1) betiği üretir.
+     * Bash'in yerleşik '\$' kuralı sayesinde normal kullanıcıda '$', root olunduğunda otomatik '#' basar.
+     */
+    fun generatePromptScript(config: MotdConfig): String {
+        return "#!/data/data/com.termux/files/usr/bin/bash\n" +
+                "# Modern Termux:MOTD - Dinamik Tema Komut İstemi (Prompt)\n" +
+                "export PS1='\\[\\e[0;32m\\]\\w\\[\\e[0m\\] \\[" + config.theme.ansiColorCode + "\\]\\$\\[\\e[0m\\] '\n"
     }
 }
