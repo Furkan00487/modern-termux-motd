@@ -183,8 +183,8 @@ class MotdGeneratorTest {
         val matrixPrompt = MotdGenerator.generatePromptScript(matrixConfig)
         assertTrue(matrixPrompt.contains("\\033[1;32m"))
 
-        val synthwaveConfig = MotdConfig(theme = MotdTheme.SYNTHWAVE)
-        val synthwavePrompt = MotdGenerator.generatePromptScript(synthwaveConfig)
-        assertTrue(synthwavePrompt.contains("\\033[1;35m"))
+        val amberConfig = MotdConfig(theme = MotdTheme.CYBER_AMBER)
+        val amberPrompt = MotdGenerator.generatePromptScript(amberConfig)
+        assertTrue(amberPrompt.contains("\\033[1;33m"))
     }
 }
